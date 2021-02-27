@@ -1,0 +1,4 @@
+# Project exclude paths
+/ClientService/target/
+/ExcelService/target/
+/PDFService/target/
