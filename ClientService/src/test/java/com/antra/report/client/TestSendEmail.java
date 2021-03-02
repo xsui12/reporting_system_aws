@@ -18,8 +18,9 @@ public class TestSendEmail {
     @Test
     public void testSendingEmail() {
         Map<String, String> message = new HashMap<>();
-        message.put("to", "dawei.zhuang@antra.com");
-        message.put("from", "do_not_reply@antra.com");
+        //message.put("to", "dawei.zhuang@antra.com");
+        message.put("to","xsui12@hotmail.com");
+        message.put("from", "xsui12@gmail.com");
         message.put("subject", "Test Email");
         message.put("body", "I did it");
         message.put("token", "12345");

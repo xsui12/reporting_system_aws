@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 public class ExcelGenerationController {
 
     private static final Logger log = LoggerFactory.getLogger(ExcelGenerationController.class);
+
     private static final String DOWNLOAD_API_URI = "/excel/{id}/content";
     ExcelService excelService;
 

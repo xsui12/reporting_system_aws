@@ -28,7 +28,7 @@ public class PDFRequestQueueListener {
    // @SqsListener("PDF_Request_Queue")
     public void queueListener(PDFRequest request) {
 //        log.info("Get request: {}", request);
-        PDFFile file = null;
+        PDFFile file;
         PDFResponse response = new PDFResponse();
         response.setReqId(request.getReqId());
 
@@ -58,10 +58,10 @@ public class PDFRequestQueueListener {
         queueMessagingTemplate.convertAndSend("PDF_Response_Queue", message);
     }
 }
-/**
- * {
- *   "description":"Student Math Course Report",
- *   "headers":["Student #","Name","Class","Score"],
- *   "submitter":"Mrs. York1234"
- * }
- **/
+/*
+  {
+    "description":"Student Math Course Report",
+    "headers":["Student #","Name","Class","Score"],
+    "submitter":"Mrs. York1234"
+  }
+ */

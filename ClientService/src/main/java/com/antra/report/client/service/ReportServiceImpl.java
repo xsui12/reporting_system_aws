@@ -17,6 +17,7 @@ import com.antra.report.client.repository.ReportRequestRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -27,19 +28,25 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
-public class ReportServiceImpl implements ReportService {
+public class ReportServiceImpl implements ReportService {//
     private static final Logger log = LoggerFactory.getLogger(ReportServiceImpl.class);
-
+    @Value("${email}")
+    String to;
     private final ReportRequestRepo reportRequestRepo;
     private final SNSService snsService;
     private final AmazonS3 s3Client;
     private final EmailService emailService;
 
+    //TODO: could not autowire AmazonS3
     public ReportServiceImpl(ReportRequestRepo reportRequestRepo, SNSService snsService, AmazonS3 s3Client, EmailService emailService) {
         this.reportRequestRepo = reportRequestRepo;
         this.snsService = snsService;
@@ -48,7 +55,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private ReportRequestEntity persistToLocal(ReportRequest request) {
-        request.setReqId("Req-"+ UUID.randomUUID().toString());
+        request.setReqId("Req-" + UUID.randomUUID().toString());
 
         ReportRequestEntity entity = new ReportRequestEntity();
         entity.setReqId(request.getReqId());
@@ -60,7 +67,7 @@ public class ReportServiceImpl implements ReportService {
         pdfReport.setRequest(entity);
         pdfReport.setStatus(ReportStatus.PENDING);
         pdfReport.setCreatedTime(LocalDateTime.now());
-        entity.setPdfReport(pdfReport);
+        entity.setPdfReport(pdfReport);     //To store report in DB
 
         ExcelReportEntity excelReport = new ExcelReportEntity();
         BeanUtils.copyProperties(pdfReport, excelReport);
@@ -69,17 +76,27 @@ public class ReportServiceImpl implements ReportService {
         return reportRequestRepo.save(entity);
     }
 
-    @Override
-    public ReportVO generateReportsSync(ReportRequest request) {
-        persistToLocal(request);
-        sendDirectRequests(request);
-        return new ReportVO(reportRequestRepo.findById(request.getReqId()).orElseThrow());
-    }
-    //TODO:Change to parallel process using Threadpool? CompletableFuture?
     private void sendDirectRequests(ReportRequest request) {
+        Callable<Void> callable1 = () -> {sendExcelRequests(request); return null; };
+        Callable<Void> callable2 = () -> {sendPDFRequests(request); return null; };
+        List<Callable<Void>> taskList = new ArrayList<Callable<Void>>();
+        taskList.add(callable1);
+        taskList.add(callable2);
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+//
+        try {
+            pool.invokeAll(taskList);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //sendExcelRequests(request);
+        //sendPDFRequests(request);
+
+    }
+    private void sendExcelRequests(ReportRequest request) {
         RestTemplate rs = new RestTemplate();
         ExcelResponse excelResponse = new ExcelResponse();
-        PDFResponse pdfResponse = new PDFResponse();
         try {
             excelResponse = rs.postForEntity("http://localhost:8888/excel", request, ExcelResponse.class).getBody();
         } catch(Exception e){
@@ -89,6 +106,10 @@ public class ReportServiceImpl implements ReportService {
         } finally {
             updateLocal(excelResponse);
         }
+    }
+    private void sendPDFRequests(ReportRequest request) {
+        RestTemplate rs = new RestTemplate();
+        PDFResponse pdfResponse = new PDFResponse();
         try {
             pdfResponse = rs.postForEntity("http://localhost:9999/pdf", request, PDFResponse.class).getBody();
         } catch(Exception e){
@@ -112,11 +133,18 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    public ReportVO generateReportsSync(ReportRequest request) {
+        persistToLocal(request);
+        sendDirectRequests(request);
+        return new ReportVO(reportRequestRepo.findById(request.getReqId()).orElseThrow());
+    }
+
+    @Override
     @Transactional
     public ReportVO generateReportsAsync(ReportRequest request) {
         ReportRequestEntity entity = persistToLocal(request);
         snsService.sendReportNotification(request);
-        log.info("Send SNS the message: {}",request);
+        log.info("Send SNS the message: {}", request);
         return new ReportVO(entity);
     }
 
@@ -128,7 +156,7 @@ public class ReportServiceImpl implements ReportService {
         pdfReport.setUpdatedTime(LocalDateTime.now());
         if (response.isFailed()) {
             pdfReport.setStatus(ReportStatus.FAILED);
-        } else{
+        } else {
             pdfReport.setStatus(ReportStatus.COMPLETED);
             pdfReport.setFileId(response.getFileId());
             pdfReport.setFileLocation(response.getFileLocation());
@@ -136,7 +164,7 @@ public class ReportServiceImpl implements ReportService {
         }
         entity.setUpdatedTime(LocalDateTime.now());
         reportRequestRepo.save(entity);
-        String to = "youremail@gmail.com";
+
         emailService.sendEmail(to, EmailType.SUCCESS, entity.getSubmitter());
     }
 
@@ -148,7 +176,7 @@ public class ReportServiceImpl implements ReportService {
         excelReport.setUpdatedTime(LocalDateTime.now());
         if (response.isFailed()) {
             excelReport.setStatus(ReportStatus.FAILED);
-        } else{
+        } else {
             excelReport.setStatus(ReportStatus.COMPLETED);
             excelReport.setFileId(response.getFileId());
             excelReport.setFileLocation(response.getFileLocation());
@@ -156,7 +184,7 @@ public class ReportServiceImpl implements ReportService {
         }
         entity.setUpdatedTime(LocalDateTime.now());
         reportRequestRepo.save(entity);
-        String to = "youremail@gmail.com";
+        //String to = "youremail@gmail.com";
         emailService.sendEmail(to, EmailType.SUCCESS, entity.getSubmitter());
     }
 
@@ -189,7 +217,7 @@ public class ReportServiceImpl implements ReportService {
             try {
                 return exchange.getBody().getInputStream();
             } catch (IOException e) {
-                log.error("Cannot download excel",e);
+                log.error("Cannot download excel", e);
             }
         }
         return null;

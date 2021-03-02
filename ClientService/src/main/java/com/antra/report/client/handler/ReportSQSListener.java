@@ -12,7 +12,7 @@ public class ReportSQSListener {
 
     private static final Logger log = LoggerFactory.getLogger(ReportSQSListener.class);
 
-    private ReportService reportService;
+    private final ReportService reportService;
 
     public ReportSQSListener(ReportService reportService) {
         this.reportService = reportService;

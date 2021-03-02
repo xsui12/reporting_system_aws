@@ -24,8 +24,8 @@ public class ExcelRequestQueueListener {
         this.queueMessagingTemplate = queueMessagingTemplate;
         this.excelService = excelService;
     }
-
-   // @SqsListener("PDF_Request_Queue")
+//TODO: Use SQS Excel_Request_Queue
+   //@SqsListener("Excel_Request_Queue")
     public void queueListener(ExcelRequest request) {
 //        log.info("Get request: {}", request);
         ExcelFile file = null;

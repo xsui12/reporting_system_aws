@@ -14,6 +14,7 @@ public class MainClientApplication {
         return new QueueMessagingTemplate(amazonSQSAsync);
     }
     public static void main(String[] args) {
+
         SpringApplication.run(MainClientApplication.class, args);
     }
 
