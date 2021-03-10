@@ -56,7 +56,7 @@ public class PDFServiceImpl implements PDFService {
         s3Client.putObject(s3Bucket,file.getFileId(),temp);
         log.debug("Uploaded");
 
-        file.setFileLocation(String.join("/",s3Bucket,file.getFileId()));
+        file.setFileLocation(String.join("/",file.getFileId()));
         file.setFileSize(generatedFile.getFileSize());
         file.setFileName(generatedFile.getFileName());
         repository.save(file);
@@ -81,7 +81,7 @@ public class PDFServiceImpl implements PDFService {
     }
 
     @Override
-    public void deleteFile(String id) throws FileNotFoundException {
+    public PDFFile deleteFile(String id) throws FileNotFoundException {
 
         Optional<PDFFile> pdfFile = repository.findById(id);
         String pdfLocation = pdfFile.orElseThrow(FileNotFoundException::new).getFileLocation();
@@ -89,5 +89,6 @@ public class PDFServiceImpl implements PDFService {
         String key = pdfLocation.split("/")[1];
         s3Client.deleteObject(bucket, key);
         repository.deleteById(id);
+        return pdfFile.orElse(null);
     }
 }

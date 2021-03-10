@@ -22,7 +22,7 @@ public interface ReportService {
 
     InputStream getFileBodyByReqId(String reqId, FileType type);
 
-    void deleteReport(String reqId) throws FileNotFoundException;
+    void deleteReport(String reqId);
 
     ReportRequest findReportRequestByReqId(String reqId);
 }

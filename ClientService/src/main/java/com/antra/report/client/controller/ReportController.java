@@ -82,7 +82,8 @@ public class ReportController {
        if (pdfData == null||excelData == null){
            throw new RequestNotFoundException("REPORT_NOT_FOUND");
        }
-        reportService.deleteReport(reqId);
+       reportService.deleteReport(reqId);
+
    }
 
    @PutMapping("/report/{reqId}")

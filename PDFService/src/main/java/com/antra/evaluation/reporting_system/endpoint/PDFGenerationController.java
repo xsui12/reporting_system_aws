@@ -9,11 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileNotFoundException;
@@ -29,8 +32,8 @@ public class PDFGenerationController {
 
     private static final String DOWNLOAD_API_URI = "/pdf/{id}/content";
 
-/*    @Value("${client.localhost}")
-    String localhost;*/
+    @Value("${client.localhost}")
+    String localhost;
 
     PDFService pdfService;
 
@@ -54,6 +57,7 @@ public class PDFGenerationController {
             response.setFileId(file.getFileId());
             response.setFileLocation(file.getFileLocation());
             response.setFileSize(file.getFileSize());
+
             log.info("Generated: {}", file);
         } catch (Exception e) {
             response.setFailed(true);
@@ -62,16 +66,11 @@ public class PDFGenerationController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping(DOWNLOAD_API_URI)
-    @ApiOperation("Get pdf content")
-    public void downloadpdf(@PathVariable String id, HttpServletResponse response) throws IOException {
-        log.debug("Got Request to Download File:{}", id);
-        InputStream fis = pdfService.getPDFBodyById(id);
-        String fileName = id.toString() + ".xlsx";
-        response.setHeader("Content-Type", "application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
-        FileCopyUtils.copy(fis, response.getOutputStream());
-        log.debug("Downloaded File:{}", id);
+    private String generateFileDownloadLink(String fileId) {
+        UriComponents uriComponents = UriComponentsBuilder.newInstance()
+                .scheme("http").host(localhost).path(DOWNLOAD_API_URI)
+                .buildAndExpand(fileId);
+        return uriComponents.toUriString();
     }
 
     @GetMapping("/pdf")
@@ -82,18 +81,33 @@ public class PDFGenerationController {
         var responseList = fileList.stream().map(file -> {
             PDFResponse response = new PDFResponse();
             BeanUtils.copyProperties(file, response);
-            response.setFileLocation(file.getFileLocation());
+            response.setFileLocation(this.generateFileDownloadLink(file.getFileLocation()));
             return response;
         }).collect(Collectors.toList());
         return new ResponseEntity<>(responseList, HttpStatus.OK);
     }
+    @GetMapping(DOWNLOAD_API_URI)
+    @ApiOperation("Get pdf content")
+    public void downloadpdf(@PathVariable String id, HttpServletResponse response) throws IOException {
+        log.debug("Got Request to Download File:{}", id);
+        InputStream fis = pdfService.getPDFBodyById(id);
+        String fileName = id + ".pdf";
+        response.setHeader("Content-Type", "application/.pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+        FileCopyUtils.copy(fis, response.getOutputStream());
+        log.debug("Downloaded File:{}", id);
+    }
+
+
 
     @DeleteMapping("/pdf/{id}")
     @ApiOperation("Delete PDF")
     public ResponseEntity<PDFResponse> deletePDF(@PathVariable String id) throws FileNotFoundException {
         log.debug("Got Request to Delete File:{}", id);
         var response = new PDFResponse();
-        pdfService.deleteFile(id);
+        PDFFile fileDeleted = pdfService.deleteFile(id);
+        BeanUtils.copyProperties(fileDeleted, response);
+        response.setFileLocation(fileDeleted.getFileLocation());
         log.debug("File Deleted");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -193,25 +194,19 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public InputStream getFileBodyByReqId(String reqId, FileType type) {
         ReportRequestEntity entity = reportRequestRepo.findById(reqId).orElseThrow(RequestNotFoundException::new);
-        if (type == FileType.PDF) {//TODO:Redirect to localhost:9999/...
+        if (type == FileType.PDF) {
             String fileLocation = entity.getPdfReport().getFileLocation(); // this location is s3 "bucket/key"
             String bucket = fileLocation.split("/")[0];
             String key = fileLocation.split("/")[1];
             return s3Client.getObject(bucket, key).getObjectContent();
+
         } else if (type == FileType.EXCEL) {
             String fileId = entity.getExcelReport().getFileId();
-//            String fileLocation = entity.getExcelReport().getFileLocation();
-//            try {
-//                return new FileInputStream(fileLocation);// this location is in local, definitely sucks
-//            } catch (FileNotFoundException e) {
-//                log.error("No file found", e);
-//            }
             RestTemplate restTemplate = new RestTemplate();
-//            InputStream is = restTemplate.execute(, HttpMethod.GET, null, ClientHttpResponse::getBody, fileId);
             ResponseEntity<Resource> exchange = restTemplate.exchange("http://localhost:8888/excel/{id}/content",
                     HttpMethod.GET, null, Resource.class, fileId);
             try {
-                return exchange.getBody().getInputStream();
+                return Objects.requireNonNull(exchange.getBody()).getInputStream();
             } catch (IOException e) {
                 log.error("Cannot download excel", e);
             }
@@ -220,13 +215,11 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public void deleteReport(String reqId) throws FileNotFoundException {
+    public void deleteReport(String reqId) {
         ReportRequestEntity entity = reportRequestRepo.findById(reqId).orElseThrow(RequestNotFoundException::new);
         RestTemplate restTemplate = new RestTemplate();
         String id;
-        if (entity == null){
-            throw new FileNotFoundException();
-        }
+
         var pdfReport = entity.getPdfReport();
         id = entity.getPdfReport().getFileId();
         restTemplate.delete("http://localhost:9999/pdf/{id}", id);

@@ -14,5 +14,5 @@ public interface PDFService {
 
     List<PDFFile> getPDFList();
 
-    void deleteFile(String id) throws FileNotFoundException;
+    PDFFile deleteFile(String id) throws FileNotFoundException;
 }
