@@ -34,7 +34,7 @@ public class PDFRequestQueueListener {
 
         try {
             file = pdfService.createPDF(request);
-            response.setFileId(file.getId());
+            response.setFileId(file.getFileId());
             response.setFileLocation(file.getFileLocation());
             response.setFileSize(file.getFileSize());
             log.info("Generated: {}", file);

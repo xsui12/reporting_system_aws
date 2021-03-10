@@ -10,9 +10,9 @@ import java.util.List;
 public interface PDFService {
     PDFFile createPDF(PDFRequest request);
 
-    //InputStream getPDFBodyById(String id) throws FileNotFoundException;
+    InputStream getPDFBodyById(String id) throws FileNotFoundException;
 
-    //List<PDFFile> getPDFList();
+    List<PDFFile> getPDFList();
 
-    //PDFFile deleteFile(String id) throws FileNotFoundException;
+    void deleteFile(String id) throws FileNotFoundException;
 }

@@ -1,5 +1,6 @@
 package com.antra.report.client.controller;
 
+import com.antra.report.client.exception.RequestNotFoundException;
 import com.antra.report.client.pojo.FileType;
 import com.antra.report.client.pojo.reponse.ErrorResponse;
 import com.antra.report.client.pojo.reponse.GeneralResponse;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.stream.Collectors;
@@ -61,7 +63,7 @@ public class ReportController {
             fileName = "report.pdf";
         } else if (type == FileType.EXCEL) {
             fileType = "application/vnd.ms-excel";
-            fileName = "report.xls";
+            fileName = "report.xlsx";
         }
         response.setHeader("Content-Type", fileType);
         response.setHeader("fileName", fileName);
@@ -73,8 +75,29 @@ public class ReportController {
         log.debug("Downloaded File:{}", reqId);
     }
 
-//   @DeleteMapping
-//   @PutMapping
+   @DeleteMapping("/report/{reqId}")
+   public void deleteFile(@PathVariable String reqId) throws FileNotFoundException {
+       InputStream pdfData = reportService.getFileBodyByReqId(reqId, FileType.PDF);
+       InputStream excelData = reportService.getFileBodyByReqId(reqId, FileType.EXCEL);
+       if (pdfData == null||excelData == null){
+           throw new RequestNotFoundException("REPORT_NOT_FOUND");
+       }
+        reportService.deleteReport(reqId);
+   }
+
+   @PutMapping("/report/{reqId}")
+    public ResponseEntity<GeneralResponse> updateFile(@PathVariable String reqId, @RequestBody ReportRequest request){
+       ReportRequest currentReportRequest = reportService.findReportRequestByReqId(reqId);
+       if(currentReportRequest == null){
+           throw new RequestNotFoundException("REPORT_NOT_FOUND");
+       }
+       if(currentReportRequest.getDescription().startsWith("Async")){
+           return ResponseEntity.ok(new GeneralResponse(reportService.generateReportsAsync(request)));
+       }
+       else{
+           return ResponseEntity.ok(new GeneralResponse(reportService.generateReportsSync(request)));
+       }
+   }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<GeneralResponse> handleValidationException(MethodArgumentNotValidException e) {

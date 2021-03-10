@@ -19,7 +19,7 @@ public class TestSendEmail {
     public void testSendingEmail() {
         Map<String, String> message = new HashMap<>();
         //message.put("to", "dawei.zhuang@antra.com");
-        message.put("to","xsui12@hotmail.com");
+        message.put("to","xsui12@gmail.com");
         message.put("from", "xsui12@gmail.com");
         message.put("subject", "Test Email");
         message.put("body", "I did it");

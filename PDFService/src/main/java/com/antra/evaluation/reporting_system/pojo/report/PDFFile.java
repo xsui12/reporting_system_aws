@@ -1,12 +1,15 @@
 package com.antra.evaluation.reporting_system.pojo.report;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 
 import java.time.LocalDateTime;
 
+//@DynamoDBTable(tableName = "pdfFile")
 @Document
 public class PDFFile {
-    private String id;
+    private String fileId;
     private String fileName;
     private String fileLocation;
     private String submitter;
@@ -14,12 +17,12 @@ public class PDFFile {
     private String description;
     private LocalDateTime generatedTime;
 
-    public String getId() {
-        return id;
+    public String getFileId() {
+        return fileId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
     }
 
     public String getFileName() {
@@ -73,7 +76,7 @@ public class PDFFile {
     @Override
     public String toString() {
         return "PDFFile{" +
-                "id='" + id + '\'' +
+                "id='" + fileId + '\'' +
                 ", fileName='" + fileName + '\'' +
                 ", fileLocation='" + fileLocation + '\'' +
                 ", submitter='" + submitter + '\'' +

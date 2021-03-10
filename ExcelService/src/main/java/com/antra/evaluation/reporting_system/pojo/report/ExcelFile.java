@@ -1,14 +1,27 @@
 package com.antra.evaluation.reporting_system.pojo.report;
 
+/*import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;*/
+
 import java.time.LocalDateTime;
 
+//@DynamoDBTable(tableName = "excelFile")
 public class ExcelFile {
+
+    //@DynamoDBHashKey(attributeName = "fileId")
     private String fileId;
+    //@DynamoDBAttribute
     private String fileName;
+    //@DynamoDBAttribute
     private String fileLocation;
+    //@DynamoDBAttribute
     private String submitter;
+    //@DynamoDBAttribute
     private Long fileSize;
+    //@DynamoDBAttribute
     private String description;
+    //@DynamoDBAttribute
     private LocalDateTime generatedTime;
 
     public Long getFileSize() {

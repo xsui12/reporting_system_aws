@@ -122,6 +122,11 @@
             <artifactId>jasperreports</artifactId>
             <version>6.15.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-dynamodb</artifactId>
+            <version>1.11.970</version>
+        </dependency>
     </dependencies>
 
     <build>

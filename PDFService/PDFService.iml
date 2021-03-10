@@ -133,16 +133,9 @@
     <orderEntry type="library" name="Maven: org.springframework.cloud:spring-cloud-aws-messaging:2.2.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.cloud:spring-cloud-aws-context:2.2.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.cloud:spring-cloud-aws-core:2.2.1.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-s3:1.11.415" level="project" />
-    <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-kms:1.11.415" level="project" />
     <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-ec2:1.11.415" level="project" />
     <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-cloudformation:1.11.415" level="project" />
     <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-sns:1.11.415" level="project" />
-    <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-core:1.11.415" level="project" />
-    <orderEntry type="library" name="Maven: software.amazon.ion:ion-java:1.0.2" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.11.2" level="project" />
-    <orderEntry type="library" name="Maven: joda-time:joda-time:2.8.1" level="project" />
-    <orderEntry type="library" name="Maven: com.amazonaws:jmespath-java:1.11.415" level="project" />
     <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-sqs:1.11.415" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-messaging:5.2.8.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: javax.activation:javax.activation-api:1.2.0" level="project" />
@@ -176,5 +169,13 @@
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.11.2" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.11.2" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.11.2" level="project" />
+    <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-dynamodb:1.11.970" level="project" />
+    <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-s3:1.11.970" level="project" />
+    <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-kms:1.11.970" level="project" />
+    <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-core:1.11.970" level="project" />
+    <orderEntry type="library" name="Maven: software.amazon.ion:ion-java:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.11.2" level="project" />
+    <orderEntry type="library" name="Maven: joda-time:joda-time:2.8.1" level="project" />
+    <orderEntry type="library" name="Maven: com.amazonaws:jmespath-java:1.11.970" level="project" />
   </component>
 </module>

@@ -20,10 +20,11 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class PDFGenerator {
-    private static final Logger log = LoggerFactory.getLogger(PDFGenerator.class);
+public class PDFGenerationServiceImpl implements PDFGenerationService{
+    private static final Logger log = LoggerFactory.getLogger(PDFGenerationServiceImpl.class);
 
-    public PDFFile generate(PDFRequest request) {
+    @Override
+    public PDFFile generate(PDFRequest request){
         Map<String, Object> parameters = new HashMap<>();
 
         parameters.put("desc_str", request.getDescription());

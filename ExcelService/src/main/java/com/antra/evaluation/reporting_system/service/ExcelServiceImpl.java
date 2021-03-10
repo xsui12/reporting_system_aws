@@ -7,6 +7,7 @@ import com.antra.evaluation.reporting_system.pojo.report.ExcelData;
 import com.antra.evaluation.reporting_system.pojo.report.ExcelDataHeader;
 import com.antra.evaluation.reporting_system.pojo.report.ExcelDataSheet;
 import com.antra.evaluation.reporting_system.pojo.report.ExcelFile;
+//import com.antra.evaluation.reporting_system.repo.DynamoDBRepository;
 import com.antra.evaluation.reporting_system.repo.ExcelRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,15 +24,19 @@ public class ExcelServiceImpl implements ExcelService {
 
     private static final Logger log = LoggerFactory.getLogger(ExcelServiceImpl.class);
 
+    private final ExcelGenerationService excelGenerationService;
     ExcelRepository excelRepository;
-
-    private ExcelGenerationService excelGenerationService;
-
     @Autowired
-    public ExcelServiceImpl(ExcelRepository excelRepository, ExcelGenerationService excelGenerationService) {
+        public ExcelServiceImpl(ExcelRepository excelRepository, ExcelGenerationService excelGenerationService) {
+            this.excelRepository = excelRepository;
+            this.excelGenerationService = excelGenerationService;
+        }
+    /*DynamoDBRepository excelRepository;
+    @Autowired
+    public ExcelServiceImpl(DynamoDBRepository excelRepository, ExcelGenerationService excelGenerationService) {
         this.excelRepository = excelRepository;
         this.excelGenerationService = excelGenerationService;
-    }
+    }*/
 
     @Override
     public InputStream getExcelBodyById(String id) throws FileNotFoundException {
@@ -61,7 +66,7 @@ public class ExcelServiceImpl implements ExcelService {
             fileInfo.setFileSize(generatedFile.length());
             fileInfo.setDescription(request.getDescription());
         } catch (IOException e) {
-//            log.error("Error in generateFile()", e);
+            log.error("Error in generateFile()", e);
             throw new FileGenerationException(e);
         }
         excelRepository.saveFile(fileInfo);
@@ -81,7 +86,11 @@ public class ExcelServiceImpl implements ExcelService {
             throw new FileNotFoundException();
         }
         File file = new File(excelFile.getFileLocation());
-        file.delete();
+        if(file.delete()){
+            log.info("Excel File Deleted: {}", file.getName());
+        }else {
+            log.debug("Excel File Not Delete: {}", file.getName());
+        }
         return excelFile;
     }
 

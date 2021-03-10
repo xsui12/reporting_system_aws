@@ -29,7 +29,7 @@ import java.util.List;
 @Service
 public class ExcelGenerationServiceImpl implements ExcelGenerationService {
 
-    private void validateDate(ExcelData data) {
+    private void validateData(ExcelData data) {
         if (data.getSheets().size() < 1) {
             throw new RuntimeException("Excel Data Error: no sheet is defined");
         }
@@ -50,7 +50,7 @@ public class ExcelGenerationServiceImpl implements ExcelGenerationService {
 
     @Override
     public File generateExcelReport(ExcelData data) throws IOException {
-        validateDate(data);
+        validateData(data);
         XSSFWorkbook workbook = new XSSFWorkbook();
 
         CellStyle headerStyle = workbook.createCellStyle();

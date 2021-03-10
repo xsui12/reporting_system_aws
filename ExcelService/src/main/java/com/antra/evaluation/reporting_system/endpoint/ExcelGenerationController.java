@@ -6,12 +6,14 @@ import com.antra.evaluation.reporting_system.pojo.api.ExcelRequest;
 import com.antra.evaluation.reporting_system.pojo.api.ExcelResponse;
 import com.antra.evaluation.reporting_system.pojo.api.MultiSheetExcelRequest;
 import com.antra.evaluation.reporting_system.pojo.report.ExcelFile;
+import com.antra.evaluation.reporting_system.repo.ExcelRepository;
 import com.antra.evaluation.reporting_system.service.ExcelService;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
@@ -34,6 +36,10 @@ public class ExcelGenerationController {
     private static final Logger log = LoggerFactory.getLogger(ExcelGenerationController.class);
 
     private static final String DOWNLOAD_API_URI = "/excel/{id}/content";
+
+    @Value("${client.localhost}")
+    String localhost;
+
     ExcelService excelService;
 
     @Autowired
@@ -44,7 +50,7 @@ public class ExcelGenerationController {
     @PostMapping("/excel")
     @ApiOperation("Generate Excel")
     public ResponseEntity<ExcelResponse> createExcel(@RequestBody @Validated ExcelRequest request) {
-        log.debug("Got Request to Create Single Sheet Excel:{}", request);
+        log.info("Got Request to Create Single Sheet Excel:{}", request);
         ExcelFile fileInfo = excelService.generateFile(request, false);
         ExcelResponse response = new ExcelResponse();
         BeanUtils.copyProperties(fileInfo, response);
@@ -56,7 +62,7 @@ public class ExcelGenerationController {
 
     private String generateFileDownloadLink(String fileId) {
         UriComponents uriComponents = UriComponentsBuilder.newInstance()
-                .scheme("http").host("localhost:8080").path(DOWNLOAD_API_URI) // localhost:8080 need to be externalized as parameter
+                .scheme("http").host(localhost).path(DOWNLOAD_API_URI)
                 .buildAndExpand(fileId);
         return uriComponents.toUriString();
     }
@@ -66,7 +72,7 @@ public class ExcelGenerationController {
     public ResponseEntity<ExcelResponse> createMultiSheetExcel(@RequestBody @Validated MultiSheetExcelRequest request) {
         log.debug("Got Request to Create Multi-Sheet Excel:{}", request);
         //Double check if the header has splitBy field.
-        if(!request.getHeaders().contains(request.getSplitBy())){
+        if (!request.getHeaders().contains(request.getSplitBy())) {
             throw new InvalidParameterException("No such header for splitting the sheets");
         }
         ExcelFile fileInfo = excelService.generateFile(request, true);
@@ -94,8 +100,9 @@ public class ExcelGenerationController {
     public void downloadExcel(@PathVariable String id, HttpServletResponse response) throws IOException {
         log.debug("Got Request to Download File:{}", id);
         InputStream fis = excelService.getExcelBodyById(id);
+        String fileName = id.toString()+".xlsx";
         response.setHeader("Content-Type", "application/vnd.ms-excel");
-        response.setHeader("Content-Disposition", "attachment; filename=\"name_of_excel_file.xls\""); // TODO: File name cannot be hardcoded here
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
         FileCopyUtils.copy(fis, response.getOutputStream());
         log.debug("Downloaded File:{}", id);
     }

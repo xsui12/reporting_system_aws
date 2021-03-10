@@ -1,7 +1,9 @@
 package com.antra.evaluation.reporting_system.pojo.api;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+//@DynamoDBTable(tableName = "PDFResponse")
 @Document
 public class PDFResponse {
 

@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -37,8 +38,10 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
-public class ReportServiceImpl implements ReportService {//
+public class ReportServiceImpl implements ReportService {
     private static final Logger log = LoggerFactory.getLogger(ReportServiceImpl.class);
+    private static final ExecutorService pool = Executors.newCachedThreadPool();
+
     @Value("${email}")
     String to;
     private final ReportRequestRepo reportRequestRepo;
@@ -46,7 +49,7 @@ public class ReportServiceImpl implements ReportService {//
     private final AmazonS3 s3Client;
     private final EmailService emailService;
 
-    //TODO: could not autowire AmazonS3
+    //TODO: Moving AmazonS3 to PDFService could not autowire AmazonS3
     public ReportServiceImpl(ReportRequestRepo reportRequestRepo, SNSService snsService, AmazonS3 s3Client, EmailService emailService) {
         this.reportRequestRepo = reportRequestRepo;
         this.snsService = snsService;
@@ -77,22 +80,16 @@ public class ReportServiceImpl implements ReportService {//
     }
 
     private void sendDirectRequests(ReportRequest request) {
-        Callable<Void> callable1 = () -> {sendExcelRequests(request); return null; };
-        Callable<Void> callable2 = () -> {sendPDFRequests(request); return null; };
-        List<Callable<Void>> taskList = new ArrayList<Callable<Void>>();
-        taskList.add(callable1);
-        taskList.add(callable2);
-        ExecutorService pool = Executors.newFixedThreadPool(2);
-//
+        Callable<Void> callExcel = () -> {sendExcelRequests(request); return null; };
+        Callable<Void> callPDF = () -> {sendPDFRequests(request); return null; };
+        List<Callable<Void>> taskList = new ArrayList<>();
+        taskList.add(callExcel);
+        taskList.add(callPDF);
         try {
             pool.invokeAll(taskList);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        //sendExcelRequests(request);
-        //sendPDFRequests(request);
-
     }
     private void sendExcelRequests(ReportRequest request) {
         RestTemplate rs = new RestTemplate();
@@ -184,7 +181,6 @@ public class ReportServiceImpl implements ReportService {//
         }
         entity.setUpdatedTime(LocalDateTime.now());
         reportRequestRepo.save(entity);
-        //String to = "youremail@gmail.com";
         emailService.sendEmail(to, EmailType.SUCCESS, entity.getSubmitter());
     }
 
@@ -197,7 +193,7 @@ public class ReportServiceImpl implements ReportService {//
     @Override
     public InputStream getFileBodyByReqId(String reqId, FileType type) {
         ReportRequestEntity entity = reportRequestRepo.findById(reqId).orElseThrow(RequestNotFoundException::new);
-        if (type == FileType.PDF) {
+        if (type == FileType.PDF) {//TODO:Redirect to localhost:9999/...
             String fileLocation = entity.getPdfReport().getFileLocation(); // this location is s3 "bucket/key"
             String bucket = fileLocation.split("/")[0];
             String key = fileLocation.split("/")[1];
@@ -222,4 +218,32 @@ public class ReportServiceImpl implements ReportService {//
         }
         return null;
     }
+
+    @Override
+    public void deleteReport(String reqId) throws FileNotFoundException {
+        ReportRequestEntity entity = reportRequestRepo.findById(reqId).orElseThrow(RequestNotFoundException::new);
+        RestTemplate restTemplate = new RestTemplate();
+        String id;
+        if (entity == null){
+            throw new FileNotFoundException();
+        }
+        var pdfReport = entity.getPdfReport();
+        id = entity.getPdfReport().getFileId();
+        restTemplate.delete("http://localhost:9999/pdf/{id}", id);
+        pdfReport.setStatus(ReportStatus.DELETED);
+
+        var excelReport = entity.getExcelReport();
+        id = entity.getExcelReport().getFileId();
+        restTemplate.delete("http://localhost:8888/excel/{id}", id);
+        excelReport.setStatus(ReportStatus.DELETED);
+    }
+
+    @Override
+    public ReportRequest findReportRequestByReqId(String reqId) {
+        ReportRequestEntity entity = reportRequestRepo.findById(reqId).orElseThrow(RequestNotFoundException::new);
+        ReportRequest reportRequest = new ReportRequest();
+        reportRequest.setReqId(entity.getReqId());
+        return reportRequest;
+    }
+
 }
