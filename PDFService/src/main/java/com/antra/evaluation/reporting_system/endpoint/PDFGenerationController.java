@@ -98,8 +98,6 @@ public class PDFGenerationController {
         log.debug("Downloaded File:{}", id);
     }
 
-
-
     @DeleteMapping("/pdf/{id}")
     @ApiOperation("Delete PDF")
     public ResponseEntity<PDFResponse> deletePDF(@PathVariable String id) throws FileNotFoundException {
@@ -109,6 +107,18 @@ public class PDFGenerationController {
         BeanUtils.copyProperties(fileDeleted, response);
         response.setFileLocation(fileDeleted.getFileLocation());
         log.debug("File Deleted");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("/pdf/{id}")
+    @ApiOperation("Update PDF")
+    public ResponseEntity<PDFResponse> updateFile(@PathVariable String id, PDFRequest request) throws FileNotFoundException {
+        log.debug("Got Request to Update File:{}", id);
+        var response = new PDFResponse();
+        PDFFile fileUpdated = pdfService.updateFile(id, request);
+        BeanUtils.copyProperties(fileUpdated, response);
+        response.setFileLocation(fileUpdated.getFileLocation());
+        log.debug("File Updated");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

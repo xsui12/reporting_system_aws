@@ -2,11 +2,13 @@ package com.antra.evaluation.reporting_system.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.antra.evaluation.reporting_system.pojo.api.PDFRequest;
+import com.antra.evaluation.reporting_system.pojo.api.PDFResponse;
 import com.antra.evaluation.reporting_system.pojo.report.PDFFile;
 import com.antra.evaluation.reporting_system.repo.DynamoDBRepository;
 //import com.antra.evaluation.reporting_system.repo.PDFRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -92,8 +94,13 @@ public class PDFServiceImpl implements PDFService {
         return pdfFile.orElse(null);
     }
 
-    public PDFFile updateFile(String id, PDFFile pdfFile) {
-        repository.updateFile(id, pdfFile);
-        return pdfFile;
-    }
+    @Override
+    public PDFFile updateFile(String id, PDFRequest request) throws FileNotFoundException {
+        Optional<PDFFile> fileInfo = repository.getFileByFileId(id);
+        PDFFile pdfFile = new PDFFile();
+        BeanUtils.copyProperties(fileInfo, pdfFile);
+        pdfFile.setDescription(request.getDescription());
+        pdfFile.setSubmitter(request.getSubmitter());
+        return pdfFile;    }
+
 }
