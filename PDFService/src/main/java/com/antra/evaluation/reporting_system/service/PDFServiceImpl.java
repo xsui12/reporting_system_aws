@@ -4,7 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.antra.evaluation.reporting_system.pojo.api.PDFRequest;
 import com.antra.evaluation.reporting_system.pojo.report.PDFFile;
 import com.antra.evaluation.reporting_system.repo.DynamoDBRepository;
-import com.antra.evaluation.reporting_system.repo.PDFRepository;
+//import com.antra.evaluation.reporting_system.repo.PDFRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +25,8 @@ public class PDFServiceImpl implements PDFService {
 
     private static final Logger log = LoggerFactory.getLogger(PDFServiceImpl.class);
 
-    private final PDFRepository repository;
-    //private final DynamoDBRepository repository;
+    //private final PDFRepository repository;
+    private final DynamoDBRepository repository;
     private final PDFGenerationServiceImpl generator;
 
     private final AmazonS3 s3Client;
@@ -35,7 +35,7 @@ public class PDFServiceImpl implements PDFService {
     private String s3Bucket;
 
     @Autowired
-    public PDFServiceImpl(PDFRepository repository, PDFGenerationServiceImpl generator, AmazonS3 s3Client) {
+    public PDFServiceImpl(DynamoDBRepository repository, PDFGenerationServiceImpl generator, AmazonS3 s3Client) {
         this.repository = repository;
         this.generator = generator;
         this.s3Client = s3Client;
@@ -77,7 +77,7 @@ public class PDFServiceImpl implements PDFService {
 
     @Override
     public List<PDFFile> getPDFList() {
-        return repository.findAll();
+        return repository.getFiles();
     }
 
     @Override
@@ -90,5 +90,10 @@ public class PDFServiceImpl implements PDFService {
         s3Client.deleteObject(bucket, key);
         repository.deleteById(id);
         return pdfFile.orElse(null);
+    }
+
+    public PDFFile updateFile(String id, PDFFile pdfFile) {
+        repository.updateFile(id, pdfFile);
+        return pdfFile;
     }
 }

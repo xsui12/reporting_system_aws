@@ -50,8 +50,8 @@ public class AWSConfig {
                 .withCredentials(
                         new AWSStaticCredentialsProvider(
                                 new BasicAWSCredentials(
-                                        "AKIA5R4L5XU5MK4MWMGY",
-                                        "r1qSvJ6AXVVw+/l4lFXOs9d6Xs8bMwQZYPRcHpXX"
+                                        "${amazon.aws.accesskey}",
+                                        "${amazon.aws.secretkey}"
                                 )
                         )
                 )

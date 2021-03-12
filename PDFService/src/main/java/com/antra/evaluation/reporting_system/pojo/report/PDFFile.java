@@ -1,13 +1,15 @@
 package com.antra.evaluation.reporting_system.pojo.report;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
 import java.time.LocalDateTime;
 
-//@DynamoDBTable(tableName = "pdfFile")
-@Document
+@DynamoDBTable(tableName = "pdfFile")
+//@Document
 public class PDFFile {
     private String fileId;
     private String fileName;
@@ -17,6 +19,7 @@ public class PDFFile {
     private String description;
     private LocalDateTime generatedTime;
 
+    @DynamoDBHashKey(attributeName ="id")
     public String getFileId() {
         return fileId;
     }
@@ -25,6 +28,7 @@ public class PDFFile {
         this.fileId = fileId;
     }
 
+    @DynamoDBAttribute
     public String getFileName() {
         return fileName;
     }
@@ -33,6 +37,7 @@ public class PDFFile {
         this.fileName = fileName;
     }
 
+    @DynamoDBAttribute
     public String getFileLocation() {
         return fileLocation;
     }
@@ -41,6 +46,7 @@ public class PDFFile {
         this.fileLocation = fileLocation;
     }
 
+    @DynamoDBAttribute
     public String getSubmitter() {
         return submitter;
     }
@@ -49,6 +55,7 @@ public class PDFFile {
         this.submitter = submitter;
     }
 
+    @DynamoDBAttribute
     public Long getFileSize() {
         return fileSize;
     }
@@ -57,6 +64,7 @@ public class PDFFile {
         this.fileSize = fileSize;
     }
 
+    @DynamoDBAttribute
     public String getDescription() {
         return description;
     }
@@ -65,6 +73,7 @@ public class PDFFile {
         this.description = description;
     }
 
+    @DynamoDBAttribute
     public LocalDateTime getGeneratedTime() {
         return generatedTime;
     }

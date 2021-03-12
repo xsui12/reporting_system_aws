@@ -177,5 +177,6 @@
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.11.2" level="project" />
     <orderEntry type="library" name="Maven: joda-time:joda-time:2.8.1" level="project" />
     <orderEntry type="library" name="Maven: com.amazonaws:jmespath-java:1.11.970" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: com.amazonaws:DynamoDBLocal:1.15.0" level="project" />
   </component>
 </module>

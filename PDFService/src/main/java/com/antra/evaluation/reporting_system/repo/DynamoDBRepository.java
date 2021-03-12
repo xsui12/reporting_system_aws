@@ -1,13 +1,14 @@
 package com.antra.evaluation.reporting_system.repo;
 
 import com.antra.evaluation.reporting_system.pojo.report.PDFFile;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface DynamoDBRepository {
+public interface DynamoDBRepository extends CrudRepository<PDFFile, String> {
 
-    Optional<PDFFile> getFileById(String id);
+    Optional<PDFFile> getFileByFileId(String id);
 
     PDFFile saveFile(PDFFile pdfFile);
 
@@ -15,7 +16,6 @@ public interface DynamoDBRepository {
 
     List<PDFFile> getFiles();
 
-    String updateFile(String id, PDFFile pdfFile);
-
+    void updateFile(String id, PDFFile pdfFile);
 
 }
