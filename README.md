@@ -11,22 +11,14 @@
 ## 2. Understand the structure and details
 Look at the [ReportingSystemArchitecture.pdf](./ReportingSystemArchitecture.pdf)
 
-## 3. Make improvement in the code/system level.
-Suggestions:
-0. Add new features like update/delete/edit report.
-1. Improve sync API performance by using multithreading and sending request concurrently to both services.
-2. Use a database instead of hashmap in the ExcelRepositoryImpl.
-3. Improve code coverage by adding more tests.
-4. Convert sync API into microservices by adding Eureka/Ribbon support.
-5. Add pressure tests to benchmark the system.
-6. Change MongoDB to DynamoDB.
-7. Fix bugs.
-8. Make the system more robust by adding fault tolerance such like : DeadLetter Queue, retry, cache, fallback etc.
-9. Add security and jwt support.
-10. Add more fancy UI using angular/react.
-11. Setup your CI/CD pipeline.
-12. Add new Services like PNGService, JPEGService etc
-13. ...
+## 3. Improvements completed.
+
+1. Configured AWS SNS, SQS, Lambda
+2. Implemented multithreading for ReportServiceImpl.sendDirectRequests()
+3. Implemented IOC for PDF GenerationService
+4. Replaced MongoDB to DynamoDB
+5. Partially complete PDF controller
+6. Cleared TODO tasks
 
 ## 4. Send your code to [Dawei Zhuang(dawei.zhuang@antra.com)](dawei.zhuang@antra.com) using Github/Gitlab. 
 Make sure there is README.MD to indicate what did you change/add to the project.
