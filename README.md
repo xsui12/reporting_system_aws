@@ -16,8 +16,8 @@ Look at the [ReportingSystemArchitecture.pdf](./ReportingSystemArchitecture.pdf)
 1. Configured AWS SNS, SQS, Lambda
 2. Implemented multithreading for ReportServiceImpl.sendDirectRequests()
 3. Implemented IOC for PDF GenerationService
-4. Replaced MongoDB to DynamoDB
-5. Added CRUD method to PDFService controller
+4. Replaced MongoDB to DynamoDB in PDFService
+5. Added CRUD methods to PDFService controller
 6. Cleared TODO tasks
 
 ## 4. Send your code to [Dawei Zhuang(dawei.zhuang@antra.com)](dawei.zhuang@antra.com) using Github/Gitlab. 
