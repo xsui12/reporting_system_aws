@@ -17,7 +17,7 @@ Look at the [ReportingSystemArchitecture.pdf](./ReportingSystemArchitecture.pdf)
 2. Implemented multithreading for ReportServiceImpl.sendDirectRequests()
 3. Implemented IOC for PDF GenerationService
 4. Replaced MongoDB to DynamoDB
-5. Partially complete PDF controller
+5. Added CRUD method to PDFService controller
 6. Cleared TODO tasks
 
 ## 4. Send your code to [Dawei Zhuang(dawei.zhuang@antra.com)](dawei.zhuang@antra.com) using Github/Gitlab. 
