@@ -16,6 +16,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,14 +77,13 @@ public class ReportController {
     }
 
    @DeleteMapping("/report/{reqId}")
-   public void deleteFile(@PathVariable String reqId) throws FileNotFoundException {
+   public void deleteFile(@PathVariable String reqId){
        InputStream pdfData = reportService.getFileBodyByReqId(reqId, FileType.PDF);
        InputStream excelData = reportService.getFileBodyByReqId(reqId, FileType.EXCEL);
        if (pdfData == null||excelData == null){
            throw new RequestNotFoundException("REPORT_NOT_FOUND");
        }
        reportService.deleteReport(reqId);
-
    }
 
    @PutMapping("/report/{reqId}")

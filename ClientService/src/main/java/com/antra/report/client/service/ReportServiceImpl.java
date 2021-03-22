@@ -50,7 +50,7 @@ public class ReportServiceImpl implements ReportService {
     private final AmazonS3 s3Client;
     private final EmailService emailService;
 
-    //TODO: Moving AmazonS3 to PDFService could not autowire AmazonS3
+    //TODO: Moving AmazonS3 to PDFService, could not autowire AmazonS3
     public ReportServiceImpl(ReportRequestRepo reportRequestRepo, SNSService snsService, AmazonS3 s3Client, EmailService emailService) {
         this.reportRequestRepo = reportRequestRepo;
         this.snsService = snsService;

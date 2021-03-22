@@ -33,7 +33,7 @@ public class AWSConfig {
         factory.setArgumentResolvers(Collections.<HandlerMethodArgumentResolver>singletonList(new PayloadArgumentResolver(messageConverter)));
         return factory;
     }
-    @Bean
+   @Bean
     public DynamoDBMapper dynamoDBMapper() {
         return new DynamoDBMapper(buildAmazonDynamoDB());
     }
@@ -50,8 +50,8 @@ public class AWSConfig {
                 .withCredentials(
                         new AWSStaticCredentialsProvider(
                                 new BasicAWSCredentials(
-                                        "${amazon.aws.accesskey}",
-                                        "${amazon.aws.secretkey}"
+                                        "${cloud.aws.credentials.accessKey}",
+                                        "${cloud.aws.credentials.secretKey}"
                                 )
                         )
                 )

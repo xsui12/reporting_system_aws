@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@DynamoDBTable(tableName = "pdfFile")
+@DynamoDBTable(tableName = "PDFFile")
 //@Document
 public class PDFFile {
     private String fileId;
@@ -63,7 +63,6 @@ public class PDFFile {
     public void setFileSize(Long fileSize) {
         this.fileSize = fileSize;
     }
-
     @DynamoDBAttribute
     public String getDescription() {
         return description;

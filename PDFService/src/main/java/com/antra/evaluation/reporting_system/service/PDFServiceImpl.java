@@ -2,14 +2,11 @@ package com.antra.evaluation.reporting_system.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.antra.evaluation.reporting_system.pojo.api.PDFRequest;
-import com.antra.evaluation.reporting_system.pojo.api.PDFResponse;
 import com.antra.evaluation.reporting_system.pojo.report.PDFFile;
 import com.antra.evaluation.reporting_system.repo.DynamoDBRepository;
-//import com.antra.evaluation.reporting_system.repo.PDFRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,13 +28,11 @@ public class PDFServiceImpl implements PDFService {
     //private final PDFRepository repository;
     private final DynamoDBRepository repository;
     private final PDFGenerationServiceImpl generator;
-
     private final AmazonS3 s3Client;
 
     @Value("${s3.bucket}")
     private String s3Bucket;
 
-    @Autowired
     public PDFServiceImpl(DynamoDBRepository repository, PDFGenerationServiceImpl generator, AmazonS3 s3Client) {
         this.repository = repository;
         this.generator = generator;
@@ -58,7 +54,7 @@ public class PDFServiceImpl implements PDFService {
         s3Client.putObject(s3Bucket,file.getFileId(),temp);
         log.debug("Uploaded");
 
-        file.setFileLocation(String.join("/",file.getFileId()));
+        file.setFileLocation(String.join("/",s3Bucket,file.getFileId()));
         file.setFileSize(generatedFile.getFileSize());
         file.setFileName(generatedFile.getFileName());
         repository.save(file);
@@ -79,7 +75,10 @@ public class PDFServiceImpl implements PDFService {
 
     @Override
     public List<PDFFile> getPDFList() {
-        return repository.getFiles();
+        List<PDFFile> list = new ArrayList<>();
+        repository.findAll().forEach(list::add);
+        return list;
+        //return repository.findAll();
     }
 
     @Override
@@ -87,8 +86,8 @@ public class PDFServiceImpl implements PDFService {
 
         Optional<PDFFile> pdfFile = repository.findById(id);
         String pdfLocation = pdfFile.orElseThrow(FileNotFoundException::new).getFileLocation();
-        String bucket = pdfLocation.split("/")[0];
-        String key = pdfLocation.split("/")[1];
+        String bucket = pdfLocation.split("/")[1];
+        String key = pdfLocation.split("/")[2];
         s3Client.deleteObject(bucket, key);
         repository.deleteById(id);
         return pdfFile.orElse(null);
@@ -96,7 +95,7 @@ public class PDFServiceImpl implements PDFService {
 
     @Override
     public PDFFile updateFile(String id, PDFRequest request) throws FileNotFoundException {
-        Optional<PDFFile> fileInfo = repository.getFileByFileId(id);
+        Optional<PDFFile> fileInfo = repository.findById(id);
         PDFFile pdfFile = new PDFFile();
         BeanUtils.copyProperties(fileInfo, pdfFile);
         pdfFile.setDescription(request.getDescription());
